@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<center style="margin-top: 100px">
+    <h3>文章详情</h3> <a href="../test/show">返回</a>
+    <br>
+    <table>
+        <tr>
+            <td><?php  echo $data[0]['title'];?></td>
+        </tr>
+        <br>
+        <tr>
+            <td><?php  echo $data[0]['created_at'];?></td>
+        </tr>
+        <br>
+        <tr>
+            <td width="200px"><?php  echo $data[0]['com'];?></td>
+        </tr>
+    </table>
+</center>
+</body>
+</html>

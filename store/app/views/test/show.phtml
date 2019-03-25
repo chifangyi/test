@@ -1,0 +1,66 @@
+<center style="margin-top: 100px">
+    <h3>文章列表</h3>
+    <form action="../test/show" method="get">
+    标题：<input type="text" name="sear" value="<?php echo $sear; ?>"> <button>搜索</button> <a href="../test/comment">文章发布</a>
+    </form>
+<table width="50%" border="1" style="margin-top: 10px">
+    <meta http-equiv="Content-Type" content=" charset=utf-8" />
+    <tr>
+        <td><center>文章标题</center></td>
+        <td><center>修改时间</center></td>
+        <td><center>操作</center></td>
+    </tr>
+    <?php
+    foreach($page->items as $item){
+        ?>
+        <tr>
+            <td><center><a href="../test/detail?id=<?php echo $item->id;?>"><?php echo str_replace($sear,"<font color='red'>".$sear."</font>",$item->title); ?></a></center></td>
+            <td style="width: 200px"><center><?php echo $item->created_at;?></center></td>
+            <td style="width: 200px"><center><a href="../test/update?id=<?php echo $item->id;?>">编辑</a> | <a href="../test/delete?id=<?php echo $item->id;?>">删除</a></center></td>
+        </tr>
+        <?php
+    }
+    ?>
+
+</table>
+
+<span>
+    <?php
+    $cp = $this->request->getQuery("page","int",1);
+
+    if($cp == 1){
+    }else{
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>1,"sear"=>$sear));?>">首页</a>
+        <?php
+    }
+
+    if($cp == 1){
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>$page->last,"sear"=>$sear));?>">上一页</a>
+        <?php
+    }else{
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>$page->before,"sear"=>$sear));?>">上一页</a>
+        <?php
+    }
+
+    if($cp == $page->last){
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>$page->first,"sear"=>$sear));?>">下一页</a>
+        <?php
+    }else{
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>$page->next,"sear"=>$sear));?>">下一页</a>
+        <?php
+    }
+    if($cp == $page->last){
+    }else{
+        ?>
+        <a href="<?php echo $this->url->get("../store/test/show",array("page"=>$page->last,"sear"=>$sear));?>">末页</a>
+        <?php
+    }
+    ?>
+    <?php echo "总共 ", $page->current, " /", $page->total_pages; ?>
+    </span>
+</center>
