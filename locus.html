@@ -1,0 +1,132 @@
+<script type="text/javascript" async defer src="http://ditu.google.cn/maps/api/js?key=AIzaSyAhUVqO89MjavkJFp-96h4mfbYSHOR3D8g&libraries=drawing&callback=initialize"></script>
+{{ javascript_include('/js/googleHelper.js', false) }}
+
+<div class="run-stat-contain">
+
+	<div class="title title1 title2">({{factoryCode}}){{product_name}}运行详情
+		
+	</div>
+	<div class="backbox">
+		<a class="layui-btn back_btn" href="javascript:history.back();"><img src="/images/back_icon.png">返回</a>
+	</div>
+	<div class="run_record">
+		<div class="title3">运行记录
+		</div>
+		<div class="trajectory_box">
+			<span class="trajectory"></span>
+		</div>
+		<div class="locus_map" id="container" style="width: 100%; height:600px; margin-top: 20px">
+
+		</div>
+	</div>
+	
+</div>
+
+{{ javascript_include('/js/wgs84tobaidu.js', false) }}
+{{ javascript_include('/js/jquery.qrcode.min.js', false) }}
+{{ javascript_include(constant('\Conf::HTTP_CODE') ~ '/js/map/library.js', false) }}
+
+<script type="text/javascript">
+	function first()
+	{
+        var map = new GMap();
+        map.init("container");
+        var startTime = "{{params.startTime}}"
+        startTime=startTime.replace(/-/g,'');
+        ajaxBasis(startTime);
+		layui.use(['form', 'laydate'], function () {
+			var form = layui.form;
+			var laydate = layui.laydate;
+			form.render();
+			laydate.render({
+				theme: '#7fbe25',
+				elem: '#date',
+				done: function (value, date, endDate) {// 切换日期的回调
+					var time = value.replace(/-/g,'');
+					ajaxBasis(time);
+				}
+			});
+		});
+	}
+	function initialize()
+	{
+        first();
+	}
+    //生成坐标点
+    var imei = "{{params.imei}}",category_id3 = "{{catThreeId}}";
+    //生成坐标点
+    function ajaxBasis(time) {
+        var map = new GMap();
+        map.init("container");
+        $.ajax({
+            method:'GET',
+            url: '/stat/trajectory',
+            dataType: "json",
+            data: {'imei':imei,'startTime':time,category_id3:category_id3},
+            async: false,
+            success: function (data) {
+                var bList = data.data.data.list;
+                //将得到的坐标插入坐标数组内
+                for (var i = 0; i < bList.length; i++) {
+                    lat = bList[i].lat;
+                    lng = bList[i].lng;
+                    var las = bd09togcj02(parseFloat(lat), parseFloat(lng));
+                    map._locations.push({
+                        lat: parseFloat(las[0]),
+                        lng: parseFloat(las[1])
+                    }); //向_locations里面追加经纬度坐标对象
+                }
+                /*获取中心点坐标*/
+                var vcenterPoint = getCenterPoint(map._locations);
+                //成功获取
+                origin = {//中心点
+                    lat: parseFloat(vcenterPoint.lat),
+                    lng: parseFloat(vcenterPoint.lng)
+                };
+                //设置中心点
+                map._map.setCenter(origin);
+                map._map.setZoom(17);
+                //上来加载坐标的时候直接将行车路线录入
+                map.setMapOnAll(null);
+                map.setMapLineAll(null, map._routerLog);
+                map.setMapLineAll(null, map._lineArr);
+                map._driveLog = [];
+                map._lineArr = [];
+                map._routerLog = [];
+                map.setMapOnAll(null);
+                for (var ii = 0; ii < map._locations.length; ii++) {
+                    var startPosition = '初始位置';
+                    var endPosition = '结束位置';
+                    if( ii == 0 )
+                    {
+                        map.addMarker(map._locations[ii],map._map,'load',startPosition);
+                    }
+                    if( ii == map._locations.length-1 )
+                    {
+                        map.addMarker(map._locations[ii], map._map, 'load', endPosition);
+                    }
+                    map._driveLog.push(map._locations[ii]);
+                }
+                //将路线记录显示出来
+                map.driveLogs();
+                $('.trajectory').text('运行时长：'+data.data.data.totalTime+'小时　　运行里程：'+data.data.data.totalMileage+'公里　　轨迹面积：'+data.data.data.totalArea+'亩');//　　预计收入：'+data.data.data.income+'元
+            },
+            error: function (err) {
+                console.log("请求失败，请重试");
+            }
+        });
+    }
+
+    function bd09togcj02(bd_lon, bd_lat)
+	{
+        var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        var x = bd_lon - 0.0065;
+        var y = bd_lat - 0.006;
+        var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+        var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+        var gg_lng = z * Math.cos(theta);
+        var gg_lat = z * Math.sin(theta);
+        return [gg_lng, gg_lat]
+    }
+
+</script>

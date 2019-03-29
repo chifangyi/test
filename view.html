@@ -1,0 +1,337 @@
+<script type="text/javascript" async defer src="http://ditu.google.cn/maps/api/js?key=AIzaSyAhUVqO89MjavkJFp-96h4mfbYSHOR3D8g&libraries=drawing&callback=initialize"></script>
+{{ javascript_include('/js/googleHelper.js', false) }}
+
+<div class="run-stat-contain yun_stat">
+	
+	<div class="title title1 title2">({{data.factoryCode}}){{data.njName}}运行详情</div>
+	<div class="backbox">
+		<a class="layui-btn back_btn" href="javascript:history.back();"><img src="/images/back_icon.png">返回</a>
+	</div>
+	<form id="search">
+		<input type="hidden" name="imei" id="imei" value="{{params.imei}}">
+		<input type="hidden" name="time" id="time" value="{{params.time}}">
+	</form>
+	<div class="stat_view_cont clearFloat stat_view_revise">
+		<div class="left stat_view_left">
+			<div class="stat_bg stat_view_top">
+				<h4>农机身份信息</h4>
+				<p>农机名称：{{data.njName}} </p>
+				<p>出厂编号：{{data.factoryCode}}</p>
+				<p>发动机编号：{{data.engineCode}}</p>
+				<!--<p>公司：{{data.comname}}</p>-->
+				<p>监控序号：{{data.imei}}</p>
+
+				<div class="dimension">
+					<!--<img src="/images/code_icon.png" alt="">-->
+					<div id="picture"></div>
+					<p>农机身份二维码</p>
+				</div>
+			</div>				
+		</div>
+		<div class="right stat_view_right">
+			<div class="stat_view_center clearFloat">
+				<div class="stat_bg  left stat_view_info stat_info_revise">
+					<h4>
+						<a href="/stat/run?imei={{params.imei}}&type=1">更多</a>运行信息
+					</h4>
+					<ul>
+						<li>
+							<span>总时长：{% if false!=data.statTotalTime %}{{data.statTotalTime}}{% else %}0{% endif %}小时</span>
+							<span>
+								总里程：{% if false!=data.statTotalMileage %}{{data.statTotalMileage}}{% else %}0{% endif %}公里
+							</span>
+						</li>
+						<li>
+							<span>
+								总面积：{% if false!=data.totalArea %}{{data.totalArea}}{% else %}0{% endif %}亩
+							</span>
+						</li>
+						<li>
+							<span>
+								今日时长：{% if false!=data.dayTotalTime %}{{data.dayTotalTime}}{% else %}0{% endif %}小时
+							</span>
+							<span>
+								今日里程：{% if false!=data.dayTotalMileage %}{{data.dayTotalMileage}}{% else %}0{% endif %}公里
+							</span>
+						</li>
+						<li>
+							<span>
+								今日面积：{% if false!=data.dayArea %}{{data.dayArea}}{% else %}0{% endif %}亩
+							</span>
+							<span>
+								预计收入:{% if 128==data.catThreeId %}{{data.dayArea*160}}{% else %}{{ data.income }}{% endif %}元
+							</span>
+						</li>
+						<li class="clearFloat">
+							<span>状态：{% if 1==data.statStatus%}运动{%else%}静止{%endif%}</span>
+							<span>速度：{% if false!=data.statSpeed %}{{data.statSpeed}}{% else %}0{% endif %}km/h</span>
+						</li>
+					</ul>
+				</div>
+				<div class="stat_bg  right stat_view_info">
+					<h4>用户信息</h4>
+					<ul>
+						<li>机主：{{data.buyerName}}</li>
+						<li>电话：{{data.buyerTelephone}}</li>
+						<li>地址：{{data.buyerAddr}}</li>
+						<li>经销商：{{data.dealer}}</li>
+						<li>补贴金额：{{data.totalSubsidy}}元</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="stat_view_right">
+		<ul class="stat_tab_box clearFloat">
+			<li class="cr" data-real="life">生命轨迹</li>
+			<li data-real="late" class="">最近轨迹</li>
+			<li data-real="first" class="">当前位置</li>
+		</ul>
+		<div class="stat_tab_cont">
+			<div class="stat_tab_list">
+				<p id="content" class="none"><span>位置：</span><span>经度：</span><span>纬度：</span></p>
+				<div class="stat_tab_map" id="container" style="height: 444px;">
+
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!--<div class="run_record">
+		<div class="title">参数信息</div>
+		<div class="retract">收起</div>
+		<div class="category_table product_list_table">
+			<table cellspacing="0" cellpadding="0" border="0">
+				<tr>
+			        <th width="10%">参数名称</th>
+			        <th width="20%">参数值</th>
+			        <th width="10%">参数名称</th>
+			        <th width="10%">参数值</th>
+			        <th width="10%">参数名称</th>
+			        <th width="15%">参数值</th>
+			    </tr>
+			    <tr>
+			    	<td>外形尺寸（长*宽*高）</td>
+			    	<td>328*647*628</td>
+			    	<td>配套动力（kw）</td>
+			    	<td>83</td>
+			    	<td>执行标准</td>
+			    	<td>
+			    		BG/T21961-2018
+			    	</td>
+			    </tr>
+			    <tr>
+			    	<td>整机质量（kg）</td>
+			    	<td>4700</td>
+			    	<td>额定功率/转速（rpm）</td>
+			    	<td>6300</td>
+			    	<td>运行宽幅（m）</td>
+			    	<td>
+			    		2.4
+			    	</td>
+			    </tr>
+			    <tr>
+			    	<td>最小离地间隙（cm）</td>
+			    	<td>27</td>
+			    	<td></td>
+			    	<td></td>
+			    	<td></td>
+			    	<td>
+			    		
+			    	</td>
+			    </tr>		    		
+			</table>
+		</div>
+	</div>-->
+	<div class="run_record none">
+		<div class="title">部件信息</div>
+		<div class="category_table product_list_table">
+			<div class="no_list_table">
+				功能正在开发中~~
+			</div>
+		</div>
+	</div>
+
+	<div class="run_record none">
+		<div class="title">售后服务信息</div>
+		<div class="category_table product_list_table">
+			<div class="no_list_table">
+				功能正在开发中~~
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="/layui.all.js"></script>
+{{ javascript_include('/js/wgs84tobaidu.js', false) }}
+{{ javascript_include('/js/jquery.qrcode.min.js', false) }}
+{{ javascript_include(constant('\Conf::HTTP_CODE') ~ '/js/map/library.js', false) }}
+
+<script type="text/javascript">
+	var picturePaath="{{data.njcode}}";
+	$('#picture').qrcode(picturePaath);
+    layui.use(['form'], function(){
+        var form = layui.form
+    });
+
+    /*地图*/
+
+	function first()
+	{
+		var map = new GMap();
+		map.init("container");
+		var lat = {{data.currentLocationProtocol.lat}}, lng = {{data.currentLocationProtocol.lng}};
+		var pointArr = bd09togcj02(parseFloat(lat), parseFloat(lng));
+		origin = {//中心点
+			lat: parseFloat(pointArr[0]),
+			lng: parseFloat(pointArr[1])
+		};
+		//设置中心点
+		map._map.setCenter(origin);
+		map._map.setZoom(17);
+		map.addMarker(origin,map._map,'none','');
+		var html = '<span>位置：{{data.currentLocationProtocol.currentLocation}}</span>' +
+			'<span>经度：'+pointArr[0]+'</span><span>纬度：'+pointArr[1]+'</span>'
+		$('#content').html(html);
+	}
+
+	//生成坐标点
+	function ajaxBasis(url,type) {
+		var map = new GMap();
+		map.init("container");
+		$.ajax({
+			method:'post',
+			url: url,
+			dataType: "json",
+			data: $("#search").serialize(),
+			success: function (data) {
+				if( 10==type )
+				{
+					$('#content').removeClass('none');
+					var html1 = '<span id="area">轨迹面积：'+data.data.data.trackArea+'亩 </span>' +
+						'<span id="sportTime">  运行时间： '+data.data.data.operationTime+'小时</span>';
+					$('#content').html(html1);
+				}
+				if( 20==type )
+				{
+					var bList = data.data.data;
+					var zoom = 8;
+				}
+				else
+				{
+					var bList = data.data.data.recentTrackProtocols;
+					var zoom = 17;
+				}
+				//将得到的坐标插入坐标数组内
+				for (var i = 0; i < bList.length; i++) {
+					lat = bList[i].lat;
+					lng = bList[i].lng;
+					var las = bd09togcj02(parseFloat(lat), parseFloat(lng));
+					map._locations.push({
+						lat: parseFloat(las[0]),
+						lng: parseFloat(las[1])
+					}); //向_locations里面追加经纬度坐标对象
+				}
+				/*获取中心点坐标*/
+				var vcenterPoint = getCenterPoint(map._locations);
+				//成功获取
+				origin = {//中心点
+					lat: parseFloat(vcenterPoint.lat),
+					lng: parseFloat(vcenterPoint.lng)
+				};
+				//设置中心点
+				map._map.setCenter(origin);
+				map._map.setZoom(zoom);
+
+				//上来加载坐标的时候直接将行车路线录入
+				map.setMapOnAll(null);
+				map.setMapLineAll(null, map._routerLog);
+				map.setMapLineAll(null, map._lineArr);
+				map._driveLog = [];
+				map._lineArr = [];
+				map._routerLog = [];
+				map.setMapOnAll(null);
+				for (var ii = 0; ii < map._locations.length; ii++) {
+                    var startPosition = endPosition = '';
+                    if( 20==type )
+                    {
+                        startPosition = '出厂位置';
+                        endPosition = '结束位置';
+                    }
+                    else
+                    {
+                        startPosition = '初始位置';
+                        endPosition = '结束位置';
+                    }
+                    if( ii == 0 )
+                    {
+                        map.addMarker(map._locations[ii],map._map,'load',startPosition);
+                    }
+                    if( ii == map._locations.length-1 )
+                    {
+                        map.addMarker(map._locations[ii], map._map, 'load', endPosition);
+                    }
+                    map._driveLog.push(map._locations[ii]);
+				}
+				//将路线记录显示出来
+				map.driveLogs();
+			},
+			error: function (err) {
+				console.log("请求失败，请重试");
+			}
+		});
+
+	}
+
+	$('.stat_tab_box li').on('click',function(){
+		$(this).addClass('cr').siblings().removeClass('cr');
+
+		var real=$(this).data('real');
+		if( 'first'==real )
+		{
+			first();
+			$('#content').removeClass('none');
+		}
+		else if('life'==real)
+		{
+			$('#content').addClass('none');
+			ajaxBasis('/stat/life',20);
+		}
+		else if('late'==real)
+		{
+			ajaxBasis('/stat/json',10);
+			$('#content').removeClass('none');
+		}
+	});
+	function initialize()
+	{
+		ajaxBasis('/stat/life',20);
+	}
+	initialize();
+
+
+    function bd09togcj02(bd_lon, bd_lat) {
+        var x_pi = 3.14159265358979324 * 3000.0 / 180.0;
+        var x = bd_lon - 0.0065;
+        var y = bd_lat - 0.006;
+        var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+        var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+        var gg_lng = z * Math.cos(theta);
+        var gg_lat = z * Math.sin(theta);
+        return [gg_lng, gg_lat]
+    }
+$(function(){
+	$('.run_record .retract').on('click',function(){
+		if($(this).text() == '收起'){
+			$(this).next('.product_list_table').hide();
+			$(this).text('展开');
+		}else if ($(this).text() == '展开') {
+			$(this).next('.product_list_table').show();
+			$(this).text('收起');
+		}
+	})
+
+
+})
+</script>
